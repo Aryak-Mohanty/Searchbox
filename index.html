@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html style="height: 100%;">
 <head>
   <title>Search Website</title>
@@ -69,11 +69,21 @@
 
     #resultFrame .resultTitle {
       margin-bottom: 5px;
+      text-align: center;
     }
 
     #resultFrame .resultSnippet {
-      color: #666;
+  color: #666;
+  display: flex;
+  align-items: center; /* Add this line */
+}
+
+    #resultFrame .resultImage {
+    max-width: 100px;
+    max-height: 100px;
+    margin-right: 10px;
     }
+
 
     button {
       padding: 10px 20px;
@@ -231,13 +241,21 @@
         width: 100%;
         max-width: 300px;
       }
+      #resultFrame .resultImage {
+    max-width: 100%;
+    max-height: auto;
+    margin-right: 10px;
+  }
+  #resultFrame .resultSnippet {
+    flex: 1;
+  }
     }
   </style>
 </head>
 <body style="height: 100%;">
   <nav>
     <ul>
-      <li><a href="https://aryak-mohanty.github.io/Searchbox/">Home</a></li>
+      <li><a href="#">Home</a></li>
       <li><a href="https://aryak-mohanty.github.io/Projects/">List</a></li>
       <li id="buttondark">
         <label class="toggle-switch">
@@ -312,49 +330,57 @@
       var resultFrame = document.getElementById('resultFrame');
       resultFrame.innerHTML = '';
 
-      for (var i = 0; i < results.length; i++) {
-        var result = results[i];
+// ...
+for (var i = 0; i < results.length; i++) {
+  var result = results[i];
 
-        var resultContainer = document.createElement('div');
-        resultContainer.classList.add('resultContainer');
+  var resultContainer = document.createElement('div');
+  resultContainer.classList.add('resultContainer');
 
-        var resultLink = document.createElement('a');
-        resultLink.classList.add('resultLink');
-        resultLink.href = result.link;
-        resultLink.textContent = result.title;
-        resultLink.target = '_blank';
+  var resultTitle = document.createElement('a'); // Change this line to create the result title as an <a> element
+  resultTitle.classList.add('resultTitle');
+  resultTitle.href = result.link;
+  resultTitle.textContent = result.title;
+  resultTitle.target = '_blank';
 
-        resultLink.addEventListener('mouseover', function() {
-          this.style.color = 'blue';
-        });
+  resultTitle.addEventListener('mouseover', function() {
+    this.style.color = 'blue';
+  });
 
-        resultLink.addEventListener('mouseout', function() {
-          this.style.color = '#000';
-        });
+  resultTitle.addEventListener('mouseout', function() {
+    this.style.color = '#000';
+  });
 
-        var resultTitle = document.createElement('h3');
-        resultTitle.classList.add('resultTitle');
-        resultTitle.textContent = result.title;
+  var resultSnippet = document.createElement('p');
+  resultSnippet.classList.add('resultSnippet');
+  resultSnippet.textContent = result.snippet;
 
-        var resultSnippet = document.createElement('p');
-        resultSnippet.classList.add('resultSnippet');
-        resultSnippet.textContent = result.snippet;
+  var resultImage = document.createElement('img');
+  resultImage.classList.add('resultImage');
+  resultImage.src = result.pagemap && result.pagemap.cse_image && result.pagemap.cse_image[0].src || ''; // Check if properties exist
 
-        resultLink.appendChild(resultTitle);
-        resultContainer.appendChild(resultLink);
-        resultContainer.appendChild(resultSnippet);
-        resultFrame.appendChild(resultContainer);
+  resultContainer.appendChild(resultTitle);
 
-        // Add code to set text color to white in dark mode
-        resultLink.addEventListener('mouseover', function() {
-          this.style.color = 'blue';
-        });
+  var contentWrapper = document.createElement('div');
+  contentWrapper.style.display = 'flex'; /* Add this line */
+  contentWrapper.appendChild(resultImage);
+  contentWrapper.appendChild(resultSnippet);
 
-        resultLink.addEventListener('mouseout', function() {
-          this.style.color = 'green'; // Change this line to match the desired link color
-        });
-      }
-    }
+  resultContainer.appendChild(contentWrapper);
+  resultFrame.appendChild(resultContainer);
+
+  // ...
+
+  // Add code to set text color to white in dark mode
+  resultTitle.addEventListener('mouseover', function() {
+    this.style.color = 'blue';
+  });
+
+  resultTitle.addEventListener('mouseout', function() {
+    this.style.color = 'green'; // Change this line to match the desired link color
+  });
+}
+}
   </script>
 </body>
 </html>
