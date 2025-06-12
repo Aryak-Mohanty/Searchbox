@@ -1,9 +1,13 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html style="height: 100%;">
+
 <head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/png" href="icon.png">
   <title>Search Website</title>
   <style>
-    html, body {
+    html,
+    body {
       height: 100%;
       background-color: #F5EFE7;
       margin: 0;
@@ -13,6 +17,7 @@
 
     #container {
       display: flex;
+      flex-direction: row;
       height: 100%;
       margin-top: 50px;
       border-top: 1px solid #ccc;
@@ -20,7 +25,6 @@
 
     #searchFrame {
       flex: 1;
-      height: 100%;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -28,6 +32,7 @@
       padding: 20px;
       box-sizing: border-box;
       border-right: 1px solid #ccc;
+      transition: height 0.3s ease;
     }
 
     #searchInput {
@@ -47,10 +52,10 @@
 
     #resultFrame {
       flex: 1;
-      height: 100%;
       padding: 20px;
       box-sizing: border-box;
       overflow-y: auto;
+      transition: height 0.3s ease;
     }
 
     #resultFrame .resultContainer {
@@ -73,17 +78,16 @@
     }
 
     #resultFrame .resultSnippet {
-  color: #666;
-  display: flex;
-  align-items: center; /* Add this line */
-}
-
-    #resultFrame .resultImage {
-    max-width: 100px;
-    max-height: 100px;
-    margin-right: 10px;
+      color: #666;
+      display: flex;
+      align-items: center;
     }
 
+    #resultFrame .resultImage {
+      max-width: 100px;
+      max-height: 100px;
+      margin-right: 10px;
+    }
 
     button {
       padding: 10px 20px;
@@ -149,7 +153,6 @@
       right: 0;
       bottom: 0;
       background-color: #ccc;
-      -webkit-transition: .4s;
       transition: .4s;
       border-radius: 34px;
     }
@@ -162,22 +165,19 @@
       left: 4px;
       bottom: 4px;
       background-color: white;
-      -webkit-transition: .4s;
       transition: .4s;
       border-radius: 50%;
     }
 
-    input:checked + .slider {
+    input:checked+.slider {
       background-color: #2196F3;
     }
 
-    input:focus + .slider {
+    input:focus+.slider {
       box-shadow: 0 0 1px #2196F3;
     }
 
-    input:checked + .slider:before {
-      -webkit-transform: translateX(26px);
-      -ms-transform: translateX(26px);
+    input:checked+.slider:before {
       transform: translateX(26px);
     }
 
@@ -190,7 +190,7 @@
       background-color: #444;
     }
 
-    .toggle-switch.dark-mode input:checked + .slider {
+    .toggle-switch.dark-mode input:checked+.slider {
       background-color: #2196F3;
     }
 
@@ -218,15 +218,10 @@
       background-color: #444;
     }
 
-    #resultFrame .resultSnippet {
-      color: #666;
-    }
-
     .dark-mode #resultFrame .resultSnippet {
-      color: #ffffff; /* Set text color to white in dark mode */
+      color: #ffffff;
     }
 
-    /* Media queries for responsive layout */
     @media (max-width: 768px) {
       #container {
         flex-direction: column;
@@ -235,24 +230,42 @@
       #searchFrame {
         border-right: none;
         padding: 20px 0;
+        height: 50%;
+        transition: height 0.3s ease;
+      }
+
+      #resultFrame {
+        height: 50%;
+        transition: height 0.3s ease;
       }
 
       #searchInput {
         width: 100%;
         max-width: 300px;
       }
+
       #resultFrame .resultImage {
-    max-width: 100%;
-    max-height: auto;
-    margin-right: 10px;
-  }
-  #resultFrame .resultSnippet {
-    flex: 1;
-  }
+        max-width: 100%;
+        height: auto;
+        margin-right: 10px;
+      }
+
+      #resultFrame .resultSnippet {
+        flex: 1;
+      }
+
+      body.search-active #searchFrame {
+        height: 25% !important;
+      }
+
+      body.search-active #resultFrame {
+        height: 75% !important;
+      }
     }
   </style>
 </head>
-<body style="height: 100%;">
+
+<body style="height: 100%;" id="pageBody">
   <nav>
     <ul>
       <li><a href="#">Home</a></li>
@@ -270,7 +283,7 @@
       <h1>Search</h1>
       <div style="display: flex; flex-direction: column; align-items: center;">
         <input type="text" id="searchInput" autocomplete="off">
-        <button id="searchButton" onclick="search()">
+        <button id="searchButton" type="button">
           <img src="icons8-search-48.png" alt="Search" style="height: 20px; width: 20px; margin-right: 5px;">
         </button>
       </div>
@@ -278,109 +291,104 @@
     <div id="resultFrame"></div>
   </div>
   <script>
-    //dark
-    const toggleSwitch = document.querySelector('.toggle-switch input[type="checkbox"]');
-    const container = document.querySelector('.container');
-    toggleSwitch.addEventListener('change', function() {
-      if (this.checked) {
-        container.classList.add('dark-mode');
-      } else {
-        container.classList.remove('dark-mode');
-      }
-    });
-    const toggle1 = document.querySelector('#toggle1');
-    toggle1.addEventListener('click', function() {
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/test/service-worker.js')
+        .then(registration => {
+          console.log('Service Worker registered with scope:', registration.scope);
+        })
+        .catch(error => {
+          console.error('Service Worker registration failed:', error);
+        });
+    }
+
+    document.getElementById('toggle1').addEventListener('click', () => {
       document.body.classList.toggle('dark-mode');
     });
-    //search
-    // Add an event listener for keydown event on the search input
-    document.getElementById('searchInput').addEventListener('keydown', function(event) {
+
+    document.getElementById('searchInput').addEventListener('keydown', event => {
       if (event.key === 'Enter') {
-        search(); // Call the search function when Enter key is pressed
+        search();
       }
     });
+
+    document.getElementById('searchButton').addEventListener('click', () => {
+      search();
+    });
+
     function search() {
-      var searchTerm = document.getElementById('searchInput').value;
-      performSearch(searchTerm);
+      const searchTerm = document.getElementById('searchInput').value;
+      if (searchTerm.trim() !== '') {
+        performSearch(searchTerm);
+      }
     }
+
     function performSearch(searchTerm) {
-      var apiKey = 'AIzaSyA2iJ5eI2Y_4wM04yOaX0fXpINMemQAnw0'; // Replace with your Google Custom Search API key
-      var searchEngineId = '40f00a839f2504550'; // Replace with your Google Custom Search Engine ID
+      const apiKey = 'AIzaSyA2iJ5eI2Y_4wM04yOaX0fXpINMemQAnw0';
+      const searchEngineId = '40f00a839f2504550';
+      const apiUrl = `https://www.googleapis.com/customsearch/v1?key=${apiKey}&cx=${searchEngineId}&q=${encodeURIComponent(searchTerm)}`;
 
-      // Prepare the request URL
-      var apiUrl = 'https://www.googleapis.com/customsearch/v1';
-      apiUrl += '?key=' + apiKey;
-      apiUrl += '&cx=' + searchEngineId;
-      apiUrl += '&q=' + encodeURIComponent(searchTerm);
+      // Add search-active class to body for mobile view
+      if (window.innerWidth <= 768) {
+        document.body.classList.add('search-active');
+      }
 
-      // Send the request
-      var xhr = new XMLHttpRequest();
-      xhr.open('GET', apiUrl, true);
-      xhr.onload = function() {
-        if (xhr.status === 200) {
-          var response = JSON.parse(xhr.responseText);
-          displayResults(response.items);
-        } else {
-          console.error('Request failed.  Returned status of ' + xhr.status);
-        }
-      };
-      xhr.send();
+      fetch(apiUrl)
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Network response was not ok');
+          }
+          return response.json();
+        })
+        .then(data => {
+          displayResults(data.items);
+        })
+        .catch(error => {
+          console.error('Request failed:', error);
+        });
     }
+
     function displayResults(results) {
-      var resultFrame = document.getElementById('resultFrame');
+      const resultFrame = document.getElementById('resultFrame');
       resultFrame.innerHTML = '';
 
-// ...
-for (var i = 0; i < results.length; i++) {
-  var result = results[i];
+      results.forEach(result => {
+        const resultContainer = document.createElement('div');
+        resultContainer.classList.add('resultContainer');
 
-  var resultContainer = document.createElement('div');
-  resultContainer.classList.add('resultContainer');
+        const resultTitle = document.createElement('a');
+        resultTitle.classList.add('resultTitle');
+        resultTitle.href = result.link;
+        resultTitle.textContent = result.title;
+        resultTitle.target = '_blank';
 
-  var resultTitle = document.createElement('a'); // Change this line to create the result title as an <a> element
-  resultTitle.classList.add('resultTitle');
-  resultTitle.href = result.link;
-  resultTitle.textContent = result.title;
-  resultTitle.target = '_blank';
+        resultTitle.addEventListener('mouseover', function () {
+          this.style.color = 'blue';
+        });
 
-  resultTitle.addEventListener('mouseover', function() {
-    this.style.color = 'blue';
-  });
+        resultTitle.addEventListener('mouseout', function () {
+          this.style.color = 'green';
+        });
 
-  resultTitle.addEventListener('mouseout', function() {
-    this.style.color = '#000';
-  });
+        const resultSnippet = document.createElement('p');
+        resultSnippet.classList.add('resultSnippet');
+        resultSnippet.textContent = result.snippet;
 
-  var resultSnippet = document.createElement('p');
-  resultSnippet.classList.add('resultSnippet');
-  resultSnippet.textContent = result.snippet;
+        const resultImage = document.createElement('img');
+        resultImage.classList.add('resultImage');
+        resultImage.src = (result.pagemap && result.pagemap.cse_image && result.pagemap.cse_image[0]?.src) || '';
 
-  var resultImage = document.createElement('img');
-  resultImage.classList.add('resultImage');
-  resultImage.src = result.pagemap && result.pagemap.cse_image && result.pagemap.cse_image[0].src || ''; // Check if properties exist
+        resultContainer.appendChild(resultTitle);
 
-  resultContainer.appendChild(resultTitle);
+        const contentWrapper = document.createElement('div');
+        contentWrapper.style.display = 'flex';
+        contentWrapper.appendChild(resultImage);
+        contentWrapper.appendChild(resultSnippet);
 
-  var contentWrapper = document.createElement('div');
-  contentWrapper.style.display = 'flex'; /* Add this line */
-  contentWrapper.appendChild(resultImage);
-  contentWrapper.appendChild(resultSnippet);
-
-  resultContainer.appendChild(contentWrapper);
-  resultFrame.appendChild(resultContainer);
-
-  // ...
-
-  // Add code to set text color to white in dark mode
-  resultTitle.addEventListener('mouseover', function() {
-    this.style.color = 'blue';
-  });
-
-  resultTitle.addEventListener('mouseout', function() {
-    this.style.color = 'green'; // Change this line to match the desired link color
-  });
-}
-}
+        resultContainer.appendChild(contentWrapper);
+        resultFrame.appendChild(resultContainer);
+      });
+    }
   </script>
 </body>
+
 </html>
