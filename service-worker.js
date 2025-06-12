@@ -1,9 +1,8 @@
 const CACHE_NAME = 'search-cache-v1';
 const FILES_TO_CACHE = [
-  './',
-  './index.html',
-  './icon.png',
-  './icons8-search-48.png'
+  'index.html',
+  'icon.png',
+  'icons8-search-48.png'
 ];
 
 self.addEventListener('install', event => {
@@ -34,6 +33,6 @@ self.addEventListener('fetch', event => {
   event.respondWith(
     caches.match(event.request).then(response => {
       return response || fetch(event.request);
-    })
+    }).catch(() => caches.match('index.html'))
   );
 });
