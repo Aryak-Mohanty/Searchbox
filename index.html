@@ -1,100 +1,26 @@
 <!DOCTYPE html>
-<html style="height: 100%;">
+<html lang="en" style="height: 100%">
 
 <head>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="icon" type="image/png" href="icon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" type="image/png" href="icon.png" />
   <title>Search Website</title>
   <style>
+    * {
+      box-sizing: border-box;
+    }
+
     html,
     body {
       height: 100%;
-      background-color: #F5EFE7;
       margin: 0;
       padding: 0;
       overflow: hidden;
+      background-color: #f5efe7;
+      color: #111;
     }
 
-    #container {
-      display: flex;
-      flex-direction: row;
-      height: 100%;
-      margin-top: 50px;
-      border-top: 1px solid #ccc;
-    }
-
-    #searchFrame {
-      flex: 1;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-direction: column;
-      padding: 20px;
-      box-sizing: border-box;
-      border-right: 1px solid #ccc;
-      transition: height 0.3s ease;
-    }
-
-    #searchInput {
-      padding: 10px;
-      border-radius: 20px;
-      width: 300px;
-      margin-bottom: 20px;
-    }
-
-    #searchButton {
-      padding: 10px 15px;
-      border-radius: 20px;
-      background-color: #4285F4;
-      color: #fff;
-      border: none;
-    }
-
-    #resultFrame {
-      flex: 1;
-      padding: 20px;
-      box-sizing: border-box;
-      overflow-y: auto;
-      transition: height 0.3s ease;
-    }
-
-    #resultFrame .resultContainer {
-      margin-bottom: 10px;
-      padding-bottom: 10px;
-      border-bottom: 1px solid #ccc;
-    }
-
-    #resultFrame .resultContainer:last-child {
-      border-bottom: none;
-    }
-
-    #resultFrame .resultLink {
-      text-decoration: none;
-    }
-
-    #resultFrame .resultTitle {
-      margin-bottom: 5px;
-      text-align: center;
-    }
-
-    #resultFrame .resultSnippet {
-      color: #666;
-      display: flex;
-      align-items: center;
-    }
-
-    #resultFrame .resultImage {
-      max-width: 100px;
-      max-height: 100px;
-      margin-right: 10px;
-    }
-
-    button {
-      padding: 10px 20px;
-      font-size: 16px;
-      cursor: pointer;
-    }
-
+    /* ====== LAYOUT ====== */
     nav {
       height: 50px;
       position: fixed;
@@ -103,8 +29,65 @@
       width: 100%;
       z-index: 1;
       border-bottom: 1px solid #ccc;
+      background: #fff;
     }
 
+    #container {
+      display: flex;
+      flex-direction: row;
+      height: calc(100% - 50px);
+      /* account for fixed nav */
+      margin-top: 50px;
+      border-top: 1px solid #ccc;
+    }
+
+    #searchFrame,
+    #resultFrame {
+      flex: 1 1 0;
+      padding: 20px;
+      box-sizing: border-box;
+      overflow: hidden;
+      /* scrolling only in result panel */
+      min-width: 180px;
+    }
+
+    #searchFrame {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      border-right: 1px solid #ccc;
+    }
+
+    #resultFrame {
+      overflow-y: auto;
+    }
+
+    /* Divider (drag handle) */
+    #divider {
+      flex: 0 0 6px;
+      background-color: #ccc;
+      cursor: col-resize;
+      /* make it easy to grab */
+      box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.05);
+      position: relative;
+      touch-action: none;
+      /* prevent browser panning while dragging */
+    }
+
+    #divider::after {
+      content: "";
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 2px;
+      height: 24px;
+      background: rgba(0, 0, 0, 0.2);
+      border-radius: 2px;
+    }
+
+    /* ====== BASIC ELEMENTS ====== */
     ul {
       list-style-type: none;
       margin: 0;
@@ -122,16 +105,68 @@
       text-align: center;
       padding: 14px 16px;
       text-decoration: none;
+      transition: transform 0.3s ease;
     }
 
     nav a:hover {
       background-color: green;
       color: #fff;
-      transform: scale(1.2);
+      transform: scale(1.12);
     }
 
-    nav a {
-      transition: transform 0.3s ease;
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    #searchInput {
+      padding: 10px;
+      border-radius: 20px;
+      width: 300px;
+      margin-bottom: 12px;
+      border: 1px solid #ccc;
+    }
+
+    #searchButton {
+      padding: 10px 15px;
+      border-radius: 20px;
+      background-color: #4285f4;
+      color: #fff;
+      border: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    /* Results */
+    .resultContainer {
+      margin-bottom: 12px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid #ccc;
+    }
+
+    .resultContainer:last-child {
+      border-bottom: none;
+    }
+
+    .resultTitle {
+      margin: 0 0 6px 0;
+      text-align: center;
+      color: green;
+    }
+
+    .resultSnippet {
+      color: #666;
+      display: flex;
+      align-items: center;
+    }
+
+    .resultImage {
+      max-width: 100px;
+      max-height: 100px;
+      margin-right: 10px;
     }
 
     .toggle-switch {
@@ -153,7 +188,7 @@
       right: 0;
       bottom: 0;
       background-color: #ccc;
-      transition: .4s;
+      transition: 0.4s;
       border-radius: 34px;
     }
 
@@ -165,33 +200,20 @@
       left: 4px;
       bottom: 4px;
       background-color: white;
-      transition: .4s;
+      transition: 0.4s;
       border-radius: 50%;
     }
 
     input:checked+.slider {
-      background-color: #2196F3;
+      background-color: #2196f3;
     }
 
     input:focus+.slider {
-      box-shadow: 0 0 1px #2196F3;
+      box-shadow: 0 0 1px #2196f3;
     }
 
     input:checked+.slider:before {
       transform: translateX(26px);
-    }
-
-    .dark-mode {
-      background-color: #222222;
-      color: #ffffff;
-    }
-
-    .toggle-switch.dark-mode .slider {
-      background-color: #444;
-    }
-
-    .toggle-switch.dark-mode input:checked+.slider {
-      background-color: #2196F3;
     }
 
     #buttondark {
@@ -200,28 +222,65 @@
       padding-right: 17px;
     }
 
-    .dark-mode .container {
+    /* ====== DARK MODE ====== */
+    body.dark-mode {
       background-color: #222222;
       color: #ffffff;
     }
 
-    .dark-mode h1 {
-      color: yellow;
+    body.dark-mode nav {
+      background-color: #444;
+      border-bottom-color: #666;
     }
 
-    .dark-mode button {
+    body.dark-mode a {
+      color: #8fe08b;
+    }
+
+    body.dark-mode a:hover {
+      background-color: #333;
+      color: #ffea00;
+    }
+
+    body.dark-mode #container {
+      background-color: #222222;
+      color: #ffffff;
+      border-top-color: #555;
+    }
+
+    body.dark-mode h1 {
+      color: #ffea00;
+    }
+
+    body.dark-mode #searchButton {
       background-color: #444;
       color: #ffffff;
     }
 
-    .dark-mode nav {
+    body.dark-mode #searchInput {
+      background: #2e2e2e;
+      color: #eee;
+      border-color: #555;
+    }
+
+    body.dark-mode #resultFrame .resultSnippet {
+      color: #eeeeee;
+    }
+
+    body.dark-mode #divider {
+      background-color: #666;
+    }
+
+    /* Make the slider follow dark mode correctly */
+    body.dark-mode .toggle-switch .slider {
       background-color: #444;
     }
 
-    .dark-mode #resultFrame .resultSnippet {
-      color: #ffffff;
+    body.dark-mode .toggle-switch input:checked+.slider {
+      background-color: #2196f3;
     }
 
+    /* ====== RESPONSIVE / MOBILE ====== */
     @media (max-width: 768px) {
       #container {
         flex-direction: column;
@@ -229,166 +288,297 @@
 
       #searchFrame {
         border-right: none;
-        padding: 20px 0;
-        height: 50%;
-        transition: height 0.3s ease;
+        padding: 16px 20px;
       }
 
-      #resultFrame {
-        height: 50%;
-        transition: height 0.3s ease;
-      }
-
-      #searchInput {
+      #divider {
+        flex: 0 0 8px;
         width: 100%;
-        max-width: 300px;
+        height: 8px;
+        cursor: row-resize;
       }
 
-      #resultFrame .resultImage {
-        max-width: 100%;
-        height: auto;
-        margin-right: 10px;
+      #divider::after {
+        width: 24px;
+        height: 2px;
       }
+    }
 
-      #resultFrame .resultSnippet {
-        flex: 1;
-      }
+    /* Optional: initial split after first search on mobile */
+    body.search-active #searchFrame {
+      flex: 0.3 1 0 !important;
+    }
 
-      body.search-active #searchFrame {
-        height: 25% !important;
-      }
+    body.search-active #resultFrame {
+      flex: 0.7 1 0 !important;
+    }
 
-      body.search-active #resultFrame {
-        height: 75% !important;
+    /* Visual cue during drag */
+    body.resizing {
+      cursor: col-resize;
+    }
+
+    @media (max-width: 768px) {
+      body.resizing {
+        cursor: row-resize;
       }
     }
   </style>
 </head>
 
-<body style="height: 100%;" id="pageBody">
+<body style="height: 100%" id="pageBody">
   <nav>
     <ul>
       <li><a href="#">Home</a></li>
       <li><a href="https://aryak-mohanty.github.io/Projects/">List</a></li>
       <li id="buttondark">
         <label class="toggle-switch">
-          <input type="checkbox" id="toggle1">
+          <input type="checkbox" id="toggle1" />
           <span class="slider"></span>
         </label>
       </li>
     </ul>
   </nav>
+
   <div id="container">
     <div id="searchFrame">
       <h1>Search</h1>
-      <div style="display: flex; flex-direction: column; align-items: center;">
-        <input type="text" id="searchInput" autocomplete="off">
+      <div style="display: flex; flex-direction: column; align-items: center">
+        <input type="text" id="searchInput" autocomplete="off" />
         <button id="searchButton" type="button">
-          <img src="icons8-search-48.png" alt="Search" style="height: 20px; width: 20px; margin-right: 5px;">
+          <img src="icons8-search-48.png" alt="Search" style="height: 20px; width: 20px; margin-right: 5px" />
+          Search
         </button>
       </div>
     </div>
+
+    <div id="divider" role="separator" aria-orientation="vertical" aria-label="Resize panels"></div>
+
     <div id="resultFrame"></div>
   </div>
-  <script>
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('service-worker.js')
 
-        .then(registration => {
-          console.log('Service Worker registered with scope:', registration.scope);
+  <script>
+    // ====== Service worker (optional) ======
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker
+        .register("service-worker.js")
+        .then((registration) => {
+          console.log("Service Worker registered with scope:", registration.scope);
         })
-        .catch(error => {
-          console.error('Service Worker registration failed:', error);
+        .catch((error) => {
+          console.error("Service Worker registration failed:", error);
         });
     }
 
-    document.getElementById('toggle1').addEventListener('click', () => {
-      document.body.classList.toggle('dark-mode');
+    // ====== Theme toggle with persistence ======
+    const themeToggle = document.getElementById("toggle1");
+    const savedTheme = localStorage.getItem("theme");
+    if (savedTheme === "dark") {
+      document.body.classList.add("dark-mode");
+      themeToggle.checked = true;
+    }
+
+    themeToggle.addEventListener("change", () => {
+      document.body.classList.toggle("dark-mode");
+      localStorage.setItem(
+        "theme",
+        document.body.classList.contains("dark-mode") ? "dark" : "light"
+      );
     });
 
-    document.getElementById('searchInput').addEventListener('keydown', event => {
-      if (event.key === 'Enter') {
+    // ====== Search interactions ======
+    document.getElementById("searchInput").addEventListener("keydown", (event) => {
+      if (event.key === "Enter") {
         search();
       }
     });
 
-    document.getElementById('searchButton').addEventListener('click', () => {
+    document.getElementById("searchButton").addEventListener("click", () => {
       search();
     });
 
     function search() {
-      const searchTerm = document.getElementById('searchInput').value;
-      if (searchTerm.trim() !== '') {
+      const searchTerm = document.getElementById("searchInput").value;
+      if (searchTerm.trim() !== "") {
         performSearch(searchTerm);
       }
     }
 
-    function performSearch(searchTerm) {
-      const apiKey = 'AIzaSyA2iJ5eI2Y_4wM04yOaX0fXpINMemQAnw0';
-      const searchEngineId = '40f00a839f2504550';
-      const apiUrl = `https://www.googleapis.com/customsearch/v1?key=${apiKey}&cx=${searchEngineId}&q=${encodeURIComponent(searchTerm)}`;
-
-      // Add search-active class to body for mobile view
-      if (window.innerWidth <= 768) {
-        document.body.classList.add('search-active');
+      function search() {
+        const searchTerm = document.getElementById('searchInput').value;
+        if (searchTerm.trim() !== '') {
+          performSearch(searchTerm);
+        }
       }
 
-      fetch(apiUrl)
-        .then(response => {
-          if (!response.ok) {
-            throw new Error('Network response was not ok');
-          }
-          return response.json();
-        })
-        .then(data => {
-          displayResults(data.items);
-        })
-        .catch(error => {
-          console.error('Request failed:', error);
-        });
-    }
+      function performSearch(searchTerm) {
+        const apiKey = 'AIzaSyA2iJ5eI2Y_4wM04yOaX0fXpINMemQAnw0';
+        const searchEngineId = '40f00a839f2504550';
+        const apiUrl = `https://www.googleapis.com/customsearch/v1?key=${apiKey}&cx=${searchEngineId}&q=${encodeURIComponent(searchTerm)}`;
+
+        // Add search-active class to body for mobile view
+        if (window.innerWidth <= 768) {
+          document.body.classList.add('search-active');
+        }
+
+        fetch(apiUrl)
+          .then(response => {
+            if (!response.ok) {
+              throw new Error('Network response was not ok');
+            }
+            return response.json();
+          })
+          .then(data => {
+            displayResults(data.items);
+          })
+          .catch(error => {
+            console.error('Request failed:', error);
+          });
+      }
+
 
     function displayResults(results) {
-      const resultFrame = document.getElementById('resultFrame');
-      resultFrame.innerHTML = '';
+      const resultsHost = document.getElementById("resultFrame");
+      resultsHost.innerHTML = "";
 
-      results.forEach(result => {
-        const resultContainer = document.createElement('div');
-        resultContainer.classList.add('resultContainer');
+      if (!results || results.length === 0) {
+        resultsHost.innerHTML =
+          '<p style="text-align:center;color:#c00;margin-top:8px">No results found.</p>';
+        return;
+      }
 
-        const resultTitle = document.createElement('a');
-        resultTitle.classList.add('resultTitle');
+      results.forEach((result) => {
+        const resultContainer = document.createElement("div");
+        resultContainer.classList.add("resultContainer");
+
+        const resultTitle = document.createElement("a");
+        resultTitle.classList.add("resultTitle");
         resultTitle.href = result.link;
         resultTitle.textContent = result.title;
-        resultTitle.target = '_blank';
+        resultTitle.target = "_blank";
 
-        resultTitle.addEventListener('mouseover', function () {
-          this.style.color = 'blue';
+        resultTitle.addEventListener("mouseover", function () {
+          this.style.color = "blue";
+        });
+        resultTitle.addEventListener("mouseout", function () {
+          this.style.color = "green";
         });
 
-        resultTitle.addEventListener('mouseout', function () {
-          this.style.color = 'green';
-        });
+        const resultSnippet = document.createElement("p");
+        resultSnippet.classList.add("resultSnippet");
+        resultSnippet.textContent = result.snippet || "";
 
-        const resultSnippet = document.createElement('p');
-        resultSnippet.classList.add('resultSnippet');
-        resultSnippet.textContent = result.snippet;
-
-        const resultImage = document.createElement('img');
-        resultImage.classList.add('resultImage');
-        resultImage.src = (result.pagemap && result.pagemap.cse_image && result.pagemap.cse_image[0]?.src) || '';
+        const resultImage = document.createElement("img");
+        resultImage.classList.add("resultImage");
+        const imgSrc =
+          (result.pagemap &&
+            result.pagemap.cse_image &&
+            result.pagemap.cse_image[0] &&
+            result.pagemap.cse_image[0].src) || "";
+        if (imgSrc) {
+          resultImage.src = imgSrc;
+        } else {
+          resultImage.style.display = "none";
+        }
 
         resultContainer.appendChild(resultTitle);
 
-        const contentWrapper = document.createElement('div');
-        contentWrapper.style.display = 'flex';
+        const contentWrapper = document.createElement("div");
+        contentWrapper.style.display = "flex";
         contentWrapper.appendChild(resultImage);
         contentWrapper.appendChild(resultSnippet);
 
         resultContainer.appendChild(contentWrapper);
-        resultFrame.appendChild(resultContainer);
+        resultsHost.appendChild(resultContainer);
       });
     }
+
+    // ====== Resizable Split (desktop: width, mobile: height) ======
+    const container = document.getElementById("container");
+    const searchFrame = document.getElementById("searchFrame");
+    const resultFrame = document.getElementById("resultFrame");
+    const divider = document.getElementById("divider");
+
+    let isDragging = false;
+
+    function clamp(n, min, max) {
+      return Math.max(min, Math.min(max, n));
+    }
+
+    function setFlex(offset) {
+      // Offset is 0..1
+      const left = clamp(offset, 0.15, 0.85);
+      const right = 1 - left;
+      // Use full flex shorthand to avoid odd browser defaults
+      searchFrame.style.flex = `${left} 1 0`;
+      resultFrame.style.flex = `${right} 1 0`;
+    }
+
+    function pointerPosToOffset(clientX, clientY) {
+      const rect = container.getBoundingClientRect();
+      const isDesktop = window.innerWidth > 768;
+      if (isDesktop) {
+        return (clientX - rect.left) / rect.width;
+      } else {
+        return (clientY - rect.top) / rect.height;
+      }
+    }
+
+    function startDrag(e) {
+      isDragging = true;
+      document.body.classList.add("resizing");
+      document.body.style.userSelect = "none";
+    }
+
+    function duringDrag(clientX, clientY) {
+      if (!isDragging) return;
+      const offset = pointerPosToOffset(clientX, clientY);
+      setFlex(offset);
+    }
+
+    function endDrag() {
+      isDragging = false;
+      document.body.classList.remove("resizing");
+      document.body.style.userSelect = "";
+    }
+
+    // Mouse
+    divider.addEventListener("mousedown", (e) => {
+      startDrag(e);
+    });
+    document.addEventListener("mousemove", (e) => {
+      duringDrag(e.clientX, e.clientY);
+    });
+    document.addEventListener("mouseup", endDrag);
+
+    // Touch
+    divider.addEventListener(
+      "touchstart",
+      (e) => {
+        startDrag(e);
+      },
+      { passive: true }
+    );
+    document.addEventListener(
+      "touchmove",
+      (e) => {
+        const t = e.touches[0];
+        duringDrag(t.clientX, t.clientY);
+      },
+      { passive: true }
+    );
+    document.addEventListener("touchend", endDrag);
+
+    // Keep ratio when rotating/resizing viewport
+    window.addEventListener("resize", () => {
+      // Re-apply current split using current sizes
+      const rect = container.getBoundingClientRect();
+      // compute offset from current flexGrow
+      const total = parseFloat(getComputedStyle(searchFrame).flexGrow) +
+        parseFloat(getComputedStyle(resultFrame).flexGrow);
+      const left = parseFloat(getComputedStyle(searchFrame).flexGrow) / total;
+      setFlex(left);
+    });
   </script>
 </body>
 
