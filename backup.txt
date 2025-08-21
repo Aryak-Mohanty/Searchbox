@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html style="height: 100%;">
+
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/png" href="icon.png">
+  <title>Search Website</title>
+  <style>
+    html,
+    body {
+      height: 100%;
+      background-color: #F5EFE7;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+    }
+
+    #container {
+      display: flex;
+      flex-direction: row;
+      height: 100%;
+      margin-top: 50px;
+      border-top: 1px solid #ccc;
+    }
+
+    #searchFrame {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      padding: 20px;
+      box-sizing: border-box;
+      border-right: 1px solid #ccc;
+      transition: height 0.3s ease;
+    }
+
+    #searchInput {
+      padding: 10px;
+      border-radius: 20px;
+      width: 300px;
+      margin-bottom: 20px;
+    }
+
+    #searchButton {
+      padding: 10px 15px;
+      border-radius: 20px;
+      background-color: #4285F4;
+      color: #fff;
+      border: none;
+    }
+
+    #resultFrame {
+      flex: 1;
+      padding: 20px;
+      box-sizing: border-box;
+      overflow-y: auto;
+      transition: height 0.3s ease;
+    }
+
+    #resultFrame .resultContainer {
+      margin-bottom: 10px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid #ccc;
+    }
+
+    #resultFrame .resultContainer:last-child {
+      border-bottom: none;
+    }
+
+    #resultFrame .resultLink {
+      text-decoration: none;
+    }
+
+    #resultFrame .resultTitle {
+      margin-bottom: 5px;
+      text-align: center;
+    }
+
+    #resultFrame .resultSnippet {
+      color: #666;
+      display: flex;
+      align-items: center;
+    }
+
+    #resultFrame .resultImage {
+      max-width: 100px;
+      max-height: 100px;
+      margin-right: 10px;
+    }
+
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    nav {
+      height: 50px;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      z-index: 1;
+      border-bottom: 1px solid #ccc;
+    }
+
+    ul {
+      list-style-type: none;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+    }
+
+    li {
+      float: left;
+    }
+
+    a {
+      display: block;
+      color: green;
+      text-align: center;
+      padding: 14px 16px;
+      text-decoration: none;
+    }
+
+    nav a:hover {
+      background-color: green;
+      color: #fff;
+      transform: scale(1.2);
+    }
+
+    nav a {
+      transition: transform 0.3s ease;
+    }
+
+    .toggle-switch {
+      display: inline-block;
+      position: relative;
+      width: 60px;
+      height: 34px;
+    }
+
+    .toggle-switch input {
+      display: none;
+    }
+
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #ccc;
+      transition: .4s;
+      border-radius: 34px;
+    }
+
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 26px;
+      width: 26px;
+      left: 4px;
+      bottom: 4px;
+      background-color: white;
+      transition: .4s;
+      border-radius: 50%;
+    }
+
+    input:checked+.slider {
+      background-color: #2196F3;
+    }
+
+    input:focus+.slider {
+      box-shadow: 0 0 1px #2196F3;
+    }
+
+    input:checked+.slider:before {
+      transform: translateX(26px);
+    }
+
+    .dark-mode {
+      background-color: #222222;
+      color: #ffffff;
+    }
+
+    .toggle-switch.dark-mode .slider {
+      background-color: #444;
+    }
+
+    .toggle-switch.dark-mode input:checked+.slider {
+      background-color: #2196F3;
+    }
+
+    #buttondark {
+      margin-top: 10px;
+      float: right;
+      padding-right: 17px;
+    }
+
+    .dark-mode .container {
+      background-color: #222222;
+      color: #ffffff;
+    }
+
+    .dark-mode h1 {
+      color: yellow;
+    }
+
+    .dark-mode button {
+      background-color: #444;
+      color: #ffffff;
+    }
+
+    .dark-mode nav {
+      background-color: #444;
+    }
+
+    .dark-mode #resultFrame .resultSnippet {
+      color: #ffffff;
+    }
+
+    @media (max-width: 768px) {
+      #container {
+        flex-direction: column;
+      }
+
+      #searchFrame {
+        border-right: none;
+        padding: 20px 0;
+        height: 50%;
+        transition: height 0.3s ease;
+      }
+
+      #resultFrame {
+        height: 50%;
+        transition: height 0.3s ease;
+      }
+
+      #searchInput {
+        width: 100%;
+        max-width: 300px;
+      }
+
+      #resultFrame .resultImage {
+        max-width: 100%;
+        height: auto;
+        margin-right: 10px;
+      }
+
+      #resultFrame .resultSnippet {
+        flex: 1;
+      }
+
+      body.search-active #searchFrame {
+        height: 25% !important;
+      }
+
+      body.search-active #resultFrame {
+        height: 75% !important;
+      }
+    }
+  </style>
+</head>
+
+<body style="height: 100%;" id="pageBody">
+  <nav>
+    <ul>
+      <li><a href="#">Home</a></li>
+      <li><a href="https://aryak-mohanty.github.io/Projects/">List</a></li>
+      <li id="buttondark">
+        <label class="toggle-switch">
+          <input type="checkbox" id="toggle1">
+          <span class="slider"></span>
+        </label>
+      </li>
+    </ul>
+  </nav>
+  <div id="container">
+    <div id="searchFrame">
+      <h1>Search</h1>
+      <div style="display: flex; flex-direction: column; align-items: center;">
+        <input type="text" id="searchInput" autocomplete="off">
+        <button id="searchButton" type="button">
+          <img src="icons8-search-48.png" alt="Search" style="height: 20px; width: 20px; margin-right: 5px;">
+        </button>
+      </div>
+    </div>
+    <div id="resultFrame"></div>
+  </div>
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('service-worker.js')
+
+        .then(registration => {
+          console.log('Service Worker registered with scope:', registration.scope);
+        })
+        .catch(error => {
+          console.error('Service Worker registration failed:', error);
+        });
+    }
+
+    document.getElementById('toggle1').addEventListener('click', () => {
+      document.body.classList.toggle('dark-mode');
+    });
+
+    document.getElementById('searchInput').addEventListener('keydown', event => {
+      if (event.key === 'Enter') {
+        search();
+      }
+    });
+
+    document.getElementById('searchButton').addEventListener('click', () => {
+      search();
+    });
+
+    function search() {
+      const searchTerm = document.getElementById('searchInput').value;
+      if (searchTerm.trim() !== '') {
+        performSearch(searchTerm);
+      }
+    }
+
+    function performSearch(searchTerm) {
+      const apiKey = 'AIzaSyA2iJ5eI2Y_4wM04yOaX0fXpINMemQAnw0';
+      const searchEngineId = '40f00a839f2504550';
+      const apiUrl = `https://www.googleapis.com/customsearch/v1?key=${apiKey}&cx=${searchEngineId}&q=${encodeURIComponent(searchTerm)}`;
+
+      // Add search-active class to body for mobile view
+      if (window.innerWidth <= 768) {
+        document.body.classList.add('search-active');
+      }
+
+      fetch(apiUrl)
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Network response was not ok');
+          }
+          return response.json();
+        })
+        .then(data => {
+          displayResults(data.items);
+        })
+        .catch(error => {
+          console.error('Request failed:', error);
+        });
+    }
+
+    function displayResults(results) {
+      const resultFrame = document.getElementById('resultFrame');
+      resultFrame.innerHTML = '';
+
+      results.forEach(result => {
+        const resultContainer = document.createElement('div');
+        resultContainer.classList.add('resultContainer');
+
+        const resultTitle = document.createElement('a');
+        resultTitle.classList.add('resultTitle');
+        resultTitle.href = result.link;
+        resultTitle.textContent = result.title;
+        resultTitle.target = '_blank';
+
+        resultTitle.addEventListener('mouseover', function () {
+          this.style.color = 'blue';
+        });
+
+        resultTitle.addEventListener('mouseout', function () {
+          this.style.color = 'green';
+        });
+
+        const resultSnippet = document.createElement('p');
+        resultSnippet.classList.add('resultSnippet');
+        resultSnippet.textContent = result.snippet;
+
+        const resultImage = document.createElement('img');
+        resultImage.classList.add('resultImage');
+        resultImage.src = (result.pagemap && result.pagemap.cse_image && result.pagemap.cse_image[0]?.src) || '';
+
+        resultContainer.appendChild(resultTitle);
+
+        const contentWrapper = document.createElement('div');
+        contentWrapper.style.display = 'flex';
+        contentWrapper.appendChild(resultImage);
+        contentWrapper.appendChild(resultSnippet);
+
+        resultContainer.appendChild(contentWrapper);
+        resultFrame.appendChild(resultContainer);
+      });
+    }
+  </script>
+</body>
+
+</html>
